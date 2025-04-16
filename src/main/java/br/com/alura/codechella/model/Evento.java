@@ -3,6 +3,7 @@ package br.com.alura.codechella.model;
 import java.time.LocalDate;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +23,8 @@ public class Evento {
     private String nome;
     private LocalDate data;
     private String descricao;
-
-    //getter e setters	
+    @Column(value = "totalingressos")
+    private Integer totalIngressos;
+    @Column(value = "ingressosdisponiveis")
+    private Integer ingressosDisponiveis;
 }

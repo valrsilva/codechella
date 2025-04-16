@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.alura.codechella.model.EventoDto;
+import br.com.alura.codechella.model.TipoEvento;
 import br.com.alura.codechella.repository.EventoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -21,23 +22,38 @@ public class EventoService {
 	}
 
 	public Mono<EventoDto> obterPorId(Long id) {
-        return  repositorio.findById(id)
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-                .map(EventoDto::toDto);
-    }
-	
+		return repositorio.findById(id).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+				.map(EventoDto::toDto);
+	}
+
 	public Mono<EventoDto> cadastrar(EventoDto dto) {
-        return repositorio.save(dto.toEntity())
-                .map(EventoDto::toDto);
-    }
-	
+		return repositorio.save(dto.toEntity()).map(EventoDto::toDto);
+	}
+
 	public Mono<Void> excluir(Long id) {
-        return repositorio.findById(id)
-                .flatMap(repositorio::delete);
-    }
+		return repositorio.findById(id).flatMap(repositorio::delete);
+	}
 
 	public Mono<EventoDto> atualizar(EventoDto dto) {
-		return repositorio.save(dto.toEntity())
-                .map(EventoDto::toDto);
+		return repositorio.save(dto.toEntity()).map(EventoDto::toDto);
+	}
+
+	public Flux<EventoDto> obterPorTipo(String tipo) {
+		TipoEvento tipoEvento = TipoEvento.valueOf(tipo.toUpperCase());
+		return repositorio.findByTipo(tipoEvento).map(EventoDto::toDto);
+	}
+
+	public Mono<EventoDto> comprarIngresso(Long id) {
+
+		return repositorio.findById(id).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+				.flatMap(e -> {
+					if (e.getIngressosDisponiveis() == 0) {
+						throw new RuntimeException("Não possui mais ingressos disponíveis");
+					} else {
+						e.setIngressosDisponiveis(e.getIngressosDisponiveis() - 1);
+						return repositorio.save(e);
+					}
+				}).map(EventoDto::toDto);
+
 	}
 }
