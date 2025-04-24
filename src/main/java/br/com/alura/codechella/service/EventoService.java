@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.com.alura.codechella.helpers.TraducaoDeTextos;
 import br.com.alura.codechella.model.EventoDto;
 import br.com.alura.codechella.model.TipoEvento;
 import br.com.alura.codechella.repository.EventoRepository;
@@ -56,4 +57,9 @@ public class EventoService {
 				}).map(EventoDto::toDto);
 
 	}
+
+	public Mono<String> obterTraducao(Long id, String idioma) {
+		return repositorio.findById(id).flatMap(e -> TraducaoDeTextos.obterTraducaoMyMemory(e.getDescricao(), idioma));
+	}
+
 }

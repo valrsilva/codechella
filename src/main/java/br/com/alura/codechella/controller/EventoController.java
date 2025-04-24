@@ -2,6 +2,7 @@ package br.com.alura.codechella.controller;
 
 import java.time.Duration;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.alura.codechella.model.EventoDto;
@@ -43,7 +45,13 @@ public class EventoController {
         return servico.obterPorId(id);
     }
 	
+	@GetMapping("/{id}/traduzir/{idioma}")
+    public Mono<String> traduzir(@PathVariable Long id, @PathVariable String idioma) {
+        return servico.obterTraducao(id, idioma);
+    }
+	
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public Mono<EventoDto> cadastrar(@RequestBody EventoDto dto) {
 	        return servico.cadastrar(dto).doOnSuccess(e -> eventoSink.tryEmitNext(e));
 	}
